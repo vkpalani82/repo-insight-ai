@@ -1,18 +1,21 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
-import path from "path";
-import { componentTagger } from "lovable-tagger";
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
-// https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
-  server: {
-    host: "::",
-    port: 8080,
-  },
-  plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-  },
-}));
+
+// Dev proxy: forwards /api/* requests to your backend to avoid CORS in development
+export default defineConfig({
+plugins: [react()],
+server: {
+proxy: {
+'/api': {
+target: 'https://ai-powered-tool-that-analyzes-any-github.onrender.com',
+changeOrigin: true,
+secure: true,
+// If your backend expects /analyze (i.e. POST /analyze), you can either call
+// '/api/analyze' from the client (this will forward to target/analyze),
+// or uncomment the rewrite below to strip '/api' when forwarding.
+// rewrite: (path) => path.replace(/^\/api/, ''),
+},
+},
+},
+})
